@@ -1,7 +1,6 @@
 run: build
 	./main
 
-
-build: main.c csv.c
-	${CC} main.c csv.c -o main
+build: main.c csv.c lexer.c
+	${CC} main.c csv.c lexer.c -o main
 
