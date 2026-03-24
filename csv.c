@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include "csv.h"
-#include "lexer.h"
+#include "include/csv.h"
+#include "include/lexer.h"
 
 
 //typedef char** CHAR2D_H ;
@@ -18,6 +18,7 @@ void csv_reader(FILE *src) {
         TOKEN_H str_tokens = tokenizer(buffer, ',');
 
         printf("%-10s", str_tokens[0].value);
+        printf("%-10s", str_tokens[2].value);
         printf("%s", str_tokens[8].value);
         printf("\n");
     }

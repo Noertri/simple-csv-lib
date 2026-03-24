@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "lexer.h"
+#include "include/lexer.h"
 
 
 char* make_str(char *buffer, int *position, const char delim)
