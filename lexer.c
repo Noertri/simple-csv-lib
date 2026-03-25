@@ -93,7 +93,7 @@ TOKEN_H tokenizer(char *buffer, char delim)
         if (buffer[pos_char] == delim ||\
             buffer[pos_char] == '\n') {
             pos_char++;
-            continue;
+            continue;  
         } else if (buffer[pos_char] == '"') {
             Token token;
             token.type = QUOTE_STR;
