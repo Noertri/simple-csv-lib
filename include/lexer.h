@@ -13,5 +13,11 @@ typedef struct __token {
 
 typedef Token* TOKEN_H;
 
-TOKEN_H tokenizer(char *buffer, char delim);
+typedef struct __tokens {
+    int len;
+    TOKEN_H data;
+} TOKENS;
+
+
+TOKENS tokenizer(char *buffer, char delim);
 
