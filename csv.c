@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include "include/csv.h"
-#include "include/lexer.h"
 
 
 int destroy_tokens(TOKENS tokens)

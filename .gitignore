@@ -78,6 +78,7 @@ dkms.conf
 bin/
 c/bin/
 
+*.bak
 *.csv
 !people-100.csv
 !products-100.csv
