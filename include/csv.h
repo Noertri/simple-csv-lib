@@ -12,6 +12,17 @@ typedef struct __options {
     char escape;
 } CSV_OPTS;
 
+typedef char** CHAR2D_H ;
+typedef char*** CHAR3D_H;
 
-void csv_reader(FILE *csv_fp);
+typedef struct csv_result {
+    int rows;
+    int columns;
+    CHAR3D_H str2d;
+} CSV;
+
+CSV csv_reader(FILE *csv_fp);
+
+int csv_destroy(CSV csv);
+
 

@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include "include/lexer.h"
 
 
@@ -14,7 +16,7 @@ char* make_str(char *buffer, int *position, const char delim)
         output[k] = buffer[i];
         i++;
         k++;
-    }
+    } 
     
     output[k] = '\0';
     *position = i;
@@ -29,9 +31,9 @@ char* make_quote_str(char *buffer, int *position)
     int k = 0;
     char esc_char = '\\';
     char *output = malloc(256*sizeof(char));
-
-    while (k < 255 && buffer[i] != '"'\
-            && buffer[i] != '\n')
+    
+    //printf("%c", buffer[i]);
+    while (k < 255 && buffer[i] != '"')
     {
         if (buffer[i] == esc_char) {
             i++;
@@ -64,8 +66,9 @@ char* make_quote_str(char *buffer, int *position)
         }
     }
     
+    //printf("%c", buffer[i]);
     output[k] = '\0';
-    *position = i;
+    *position = i+1;
     return output;
 }
 
@@ -75,13 +78,14 @@ void append(TOKEN_H array, int index, Token value) {
 }
 
 
-TOKEN_H tokenizer(char *buffer, char delim)
+TOKENS tokenizer(char *buffer, char delim)
 {
     int capacity = 10;
     TOKEN_H tokens = malloc(capacity*sizeof(Token));
     
     int i = 0;
     int pos_char = 0;
+    
     while(buffer[pos_char] != '\0') 
     {
         if (i >= capacity) {
@@ -90,26 +94,40 @@ TOKEN_H tokenizer(char *buffer, char delim)
                     capacity*sizeof(Token));
         }
 
-        if (buffer[pos_char] == delim ||\
-            buffer[pos_char] == '\n') {
+        if (buffer[pos_char] == '\n' ||\
+                buffer[pos_char] == '\r') {
             pos_char++;
+<<<<<<< HEAD
             continue;  
+=======
+            continue;
+        } else if (buffer[pos_char] == delim) {
+            Token delim_tok;
+            delim_tok.type = DELIM;
+            sprintf(delim_tok.value, "%c", delim);
+            append(tokens, i, delim_tok);
+            pos_char++;
+            i++;
+>>>>>>> 0.0.1
         } else if (buffer[pos_char] == '"') {
-            Token token;
-            token.type = QUOTE_STR;
-            token.value = make_quote_str(buffer, &pos_char);
-            append(tokens, i, token);
+            Token quote_str_tok;
+            quote_str_tok.type = QUOTE_STR;
+            quote_str_tok.value = make_quote_str(buffer, &pos_char);
+            append(tokens, i, quote_str_tok);
             i++;
         } else {
-            Token token;
-            token.type = STR;
-            token.value = make_str(buffer, &pos_char, delim);
-            append(tokens, i, token);
+            Token str_tok;
+            str_tok.type = STR;
+            str_tok.value = make_str(buffer, &pos_char, delim);
+            append(tokens, i, str_tok);
             i++;
         }
     }
 
-    return tokens;
+    TOKENS arr_tokens;
+    arr_tokens.len = i;
+    arr_tokens.data = tokens;
+    return arr_tokens;
 }
 
 
