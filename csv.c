@@ -1,5 +1,7 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include "include/csv.h"
 #include "include/csv_internal.h"
@@ -31,6 +33,18 @@ typedef struct __parser_result {
 } ParserResult;
 
 
+int deep_copy(CHAR2D_H dest, int dest_index, char *src)
+{
+    if (src != NULL) {
+        size_t n = strlen(src)+1;
+        dest[dest_index] = malloc(n*sizeof(char));
+        memcpy(dest[dest_index], src, n);
+    }
+
+    return 0;
+}
+
+
 ParserResult parser(TOKENS tokens)
 {
     int capacity = ((tokens.len+1)/2);
@@ -43,11 +57,11 @@ ParserResult parser(TOKENS tokens)
 
     while (i < tokens.len) {
         if (tokens_data[i].type == STR) {
-            token_values[j] = tokens_data[i].value;
+            deep_copy(token_values, j, tokens_data[i].value);
             i++;
             j++;
         } else if (tokens_data[i].type == QUOTE_STR) {
-            token_values[j] = tokens_data[i].value;
+            deep_copy(token_values, j, tokens_data[i].value);
             i++;
             j++;
         } else {
@@ -84,17 +98,25 @@ CSV csv_reader(FILE *src) {
 
         TOKENS tokens = tokenizer(buffer, ',');
         ParserResult parser_results = parser(tokens);
+        
+        int col_cap = parser_results.len;
+        str2d[i] = malloc(col_cap*sizeof(char*));
 
         j = 0;
 
-        /*for(int k = 0; k < parser_results.len; k++) {
-            str2d[i][j] = parser_results.values[k];
+        for(int k = 0; k < parser_results.len; k++) {
+            size_t n = strlen(parser_results.values[k])+1;
+            str2d[i][j] = malloc(n*sizeof(char));
+            memcpy(str2d[i][j], parser_results.values[k], n);
             j++;
-        }*/
-
-        printf("%s\n", parser_results.values[8]);
+        }
 
         i++;
+        
+        for (int k = 0; k < parser_results.len; k++) {
+            free(parser_results.values[k]);
+        }
+
     }
 
     result.rows = i;

@@ -1,5 +1,7 @@
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include "include/csv_internal.h"
 
@@ -78,6 +80,23 @@ void append(TOKEN_H array, int index, Token value) {
 }
 
 
+Token make_token(TokenType type, char *value) {
+    Token token;
+    token.type = type;
+
+    if (value != NULL) {
+        size_t n = strlen(value)+1;
+        token.value = malloc(n*sizeof(char));
+        memcpy(token.value, value, n);
+        free(value);
+    } else {
+        token.value = NULL;
+    }
+
+    return token;
+}
+
+
 TOKENS tokenizer(char *buffer, char delim)
 {
     int capacity = 10;
@@ -99,23 +118,18 @@ TOKENS tokenizer(char *buffer, char delim)
             pos_char++;
             continue;
         } else if (buffer[pos_char] == delim) {
-            Token delim_tok;
-            delim_tok.type = DELIM;
-            delim_tok.value = malloc(2*sizeof(char));
-            sprintf(delim_tok.value, "%c", delim);
+            Token delim_tok = make_token(DELIM, NULL);
             append(tokens, i, delim_tok);
             pos_char++;
             i++;
         } else if (buffer[pos_char] == '"') {
-            Token quote_str_tok;
-            quote_str_tok.type = QUOTE_STR;
-            quote_str_tok.value = make_quote_str(buffer, &pos_char);
+            char *quote_str = make_quote_str(buffer, &pos_char);
+            Token quote_str_tok = make_token(QUOTE_STR, quote_str);
             append(tokens, i, quote_str_tok);
             i++;
         } else {
-            Token str_tok;
-            str_tok.type = STR;
-            str_tok.value = make_str(buffer, &pos_char, delim);
+            char *str = make_str(buffer, &pos_char, delim);
+            Token str_tok = make_token(STR, str);
             append(tokens, i, str_tok);
             i++;
         }
