@@ -2,20 +2,24 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include "include/csv.h"
+#include "include/csv_internal.h"
 
 
 int destroy_tokens(TOKENS tokens)
 {
     int capacity = tokens.len;
 
-    for(int i = 0; i < capacity; i++)
-    {
-        free(tokens.data[i].value);
-        tokens.data[i].value = NULL;
+    for(int i = 0; i < capacity; i++) {
+        if (tokens.data[i].value != NULL) {
+            free(tokens.data[i].value);
+            tokens.data[i].value = NULL;
+        }
     }
-
-    free(tokens.data);
-    tokens.data = NULL;
+    
+    if (tokens.data != NULL) {
+        free(tokens.data);
+        tokens.data = NULL;
+    }
 
     return 0;
 }
@@ -29,7 +33,7 @@ typedef struct __parser_result {
 
 ParserResult parser(TOKENS tokens)
 {
-    int capacity = tokens.len;
+    int capacity = ((tokens.len+1)/2);
     TOKEN_H tokens_data = tokens.data;
     CHAR2D_H token_values = malloc(capacity*sizeof(char*));
     ParserResult result;
@@ -37,20 +41,17 @@ ParserResult parser(TOKENS tokens)
     int i = 0;
     int j = 0;
 
-    while (i < capacity) {
-        switch (tokens_data[i].type) {
-            case STR:
-                token_values[j] = tokens_data[i].value;
-                i++;
-                j++;
-                break;
-            case QUOTE_STR:
-                token_values[j] = tokens_data[i].value;
-                i++;
-                j++;
-                break;
-            default:
-                continue;
+    while (i < tokens.len) {
+        if (tokens_data[i].type == STR) {
+            token_values[j] = tokens_data[i].value;
+            i++;
+            j++;
+        } else if (tokens_data[i].type == QUOTE_STR) {
+            token_values[j] = tokens_data[i].value;
+            i++;
+            j++;
+        } else {
+            i++;
         }
     }
 
@@ -82,31 +83,17 @@ CSV csv_reader(FILE *src) {
         }
 
         TOKENS tokens = tokenizer(buffer, ',');
-
-        int tokens_len = tokens.len;
-        TOKEN_H tokens_data = tokens.data;
-
-        int col_cap = ((tokens_len+1)/2);
-        str2d[i] = malloc(col_cap*sizeof(char*));
+        ParserResult parser_results = parser(tokens);
 
         j = 0;
-        int k = 0;
 
-        while(k < tokens_len) {
-            if (tokens_data[k].type == STR) {
-                str2d[i][j] = tokens_data[k].value;
-                j++;
-                k++;
-            } else if (tokens_data[k].type == QUOTE_STR) {
-                str2d[i][j] = tokens_data[k].value;
-                j++;
-                k++;
-            } else {
-                k++;
-                continue;
-            }
-        }
-        
+        /*for(int k = 0; k < parser_results.len; k++) {
+            str2d[i][j] = parser_results.values[k];
+            j++;
+        }*/
+
+        printf("%s\n", parser_results.values[8]);
+
         i++;
     }
 

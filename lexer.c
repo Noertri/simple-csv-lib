@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include "include/csv.h"
+#include "include/csv_internal.h"
 
 
 char* make_str(char *buffer, int *position, const char delim)
@@ -101,6 +101,7 @@ TOKENS tokenizer(char *buffer, char delim)
         } else if (buffer[pos_char] == delim) {
             Token delim_tok;
             delim_tok.type = DELIM;
+            delim_tok.value = malloc(2*sizeof(char));
             sprintf(delim_tok.value, "%c", delim);
             append(tokens, i, delim_tok);
             pos_char++;

@@ -17,13 +17,13 @@ int main() {
 
     CSV reader = csv_reader(fp);
 
-    for (int i = 0; i < 11; i++) {
-        for (int j = 7; j < reader.columns; j++) {
+    /*for (int i = 0; i < 11; i++) {
+        for (int j = 0; j < reader.columns; j++) {
             printf("%s\t", reader.str2d[i][j]);
         }
 
         printf("\n");
-    }
+    }*/
 
     fclose(fp);
     return 0;
