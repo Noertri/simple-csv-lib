@@ -23,3 +23,6 @@ typedef struct csv_result {
 
 CSV csv_reader(FILE *csv_fp);
 
+int csv_destroy(CSV csv);
+
+
