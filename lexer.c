@@ -97,9 +97,6 @@ TOKENS tokenizer(char *buffer, char delim)
         if (buffer[pos_char] == '\n' ||\
                 buffer[pos_char] == '\r') {
             pos_char++;
-<<<<<<< HEAD
-            continue;  
-=======
             continue;
         } else if (buffer[pos_char] == delim) {
             Token delim_tok;
@@ -108,7 +105,6 @@ TOKENS tokenizer(char *buffer, char delim)
             append(tokens, i, delim_tok);
             pos_char++;
             i++;
->>>>>>> 0.0.1
         } else if (buffer[pos_char] == '"') {
             Token quote_str_tok;
             quote_str_tok.type = QUOTE_STR;
