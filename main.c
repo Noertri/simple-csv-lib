@@ -19,7 +19,7 @@ int main() {
 
     for (int i = 0; i < reader.rows; i++) {
         printf("%s\t", reader.str2d[i][0]);
-        printf("%s\t", reader.str2d[i][8]);
+        printf("%s\t", reader.str2d[i][2]);
         printf("\n");
     }
 

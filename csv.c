@@ -14,7 +14,6 @@ int destroy_tokens(TOKENS tokens)
     for(int i = 0; i < capacity; i++) {
         if (tokens.data[i].value != NULL) {
             free(tokens.data[i].value);
-            tokens.data[i].value = NULL;
         }
     }
     
@@ -33,18 +32,6 @@ typedef struct __parser_result {
 } ParserResult;
 
 
-int deep_copy(CHAR2D_H dest, int dest_index, char *src)
-{
-    if (src != NULL) {
-        size_t n = strlen(src)+1;
-        dest[dest_index] = malloc(n*sizeof(char));
-        memcpy(dest[dest_index], src, n);
-    }
-
-    return 0;
-}
-
-
 ParserResult parser(TOKENS tokens)
 {
     int capacity = ((tokens.len+1)/2);
@@ -57,11 +44,13 @@ ParserResult parser(TOKENS tokens)
 
     while (i < tokens.len) {
         if (tokens_data[i].type == STR) {
-            deep_copy(token_values, j, tokens_data[i].value);
+            token_values[j] = tokens_data[i].value;
+            tokens_data[i].value = NULL;
             i++;
             j++;
         } else if (tokens_data[i].type == QUOTE_STR) {
-            deep_copy(token_values, j, tokens_data[i].value);
+            token_values[j] = tokens_data[i].value;
+            tokens_data[i].value = NULL;
             i++;
             j++;
         } else {
@@ -81,12 +70,41 @@ CSV csv_reader(FILE *src) {
     CSV result;
     int row_cap = 10;
     CHAR3D_H str2d = malloc(row_cap*sizeof(CHAR2D_H));    
+    
+    if (!str2d) {
+        str2d = NULL;
+        CSV empty;
+        empty.rows = 0;
+        empty.columns = 0;
+        empty.str2d = str2d;
+        return empty;
+    }
+
     int i = 0;
     int j;
     while(1) {
         if (i >= row_cap) {
             row_cap *= 2;
-            str2d = realloc(str2d, row_cap*sizeof(CHAR2D_H));
+            CHAR3D_H new_str2d = realloc(str2d, row_cap*sizeof(CHAR2D_H));
+
+            if (!new_str2d) {
+                for (int h = 0; h < i; h++) {
+                    for (int g = 0; g < j; g++) {
+                        free(str2d[h][g]);
+                        str2d[h][g] = NULL;
+                    }
+                }
+
+                free(str2d);
+                str2d = NULL;
+                CSV empty;
+                empty.rows = 0;
+                empty.columns = 0;
+                empty.str2d = str2d;
+                return empty;
+            }
+
+            str2d = new_str2d;
         }
 
         char buffer[256];
@@ -105,18 +123,15 @@ CSV csv_reader(FILE *src) {
         j = 0;
 
         for(int k = 0; k < parser_results.len; k++) {
-            size_t n = strlen(parser_results.values[k])+1;
-            str2d[i][j] = malloc(n*sizeof(char));
-            memcpy(str2d[i][j], parser_results.values[k], n);
+            str2d[i][j] = parser_results.values[k];
+            parser_results.values[k] = NULL;
             j++;
         }
 
         i++;
         
-        for (int k = 0; k < parser_results.len; k++) {
-            free(parser_results.values[k]);
-        }
-
+        free(parser_results.values);
+        parser_results.values = NULL;
     }
 
     result.rows = i;
