@@ -85,7 +85,7 @@ TOKENS tokenizer(char *buffer, char delim)
     
     int i = 0;
     int pos_char = 0;
-    Token token;
+    
     while(buffer[pos_char] != '\0') 
     {
         if (i >= capacity) {
@@ -99,18 +99,23 @@ TOKENS tokenizer(char *buffer, char delim)
             pos_char++;
             continue;
         } else if (buffer[pos_char] == delim) {
+            Token delim_tok;
+            delim_tok.type = DELIM;
+            sprintf(delim_tok.value, "%c", delim);
+            append(tokens, i, delim_tok);
             pos_char++;
+            i++;
         } else if (buffer[pos_char] == '"') {
-            //Token token;
-            token.type = QUOTE_STR;
-            token.value = make_quote_str(buffer, &pos_char);
-            append(tokens, i, token);
+            Token quote_str_tok;
+            quote_str_tok.type = QUOTE_STR;
+            quote_str_tok.value = make_quote_str(buffer, &pos_char);
+            append(tokens, i, quote_str_tok);
             i++;
         } else {
-            //Token token;
-            token.type = STR;
-            token.value = make_str(buffer, &pos_char, delim);
-            append(tokens, i, token);
+            Token str_tok;
+            str_tok.type = STR;
+            str_tok.value = make_str(buffer, &pos_char, delim);
+            append(tokens, i, str_tok);
             i++;
         }
     }

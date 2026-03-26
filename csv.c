@@ -5,10 +5,6 @@
 #include "include/lexer.h"
 
 
-typedef char** CHAR2D_H ;
-typedef char*** CHAR3D_H;
-
-
 int destroy_tokens(TOKENS tokens)
 {
     int capacity = tokens.len;
@@ -67,13 +63,59 @@ ParserResult parser(TOKENS tokens)
 }
 
 
-void csv_reader(FILE *src) {
-    for (int i = 0; i < 101; i++) {
+CSV csv_reader(FILE *src) {
+    CSV result;
+    int row_cap = 10;
+    CHAR3D_H str2d = malloc(row_cap*sizeof(CHAR2D_H));    
+    int i = 0;
+    int j;
+    while(1) {
+        if (i >= row_cap) {
+            row_cap *= 2;
+            str2d = realloc(str2d, row_cap*sizeof(CHAR2D_H));
+        }
+
         char buffer[256];
-        fgets(buffer, 256, src);
-        TOKENS str_tokens = tokenizer(buffer, ',');
-        parser(str_tokens);
+        char *status = fgets(buffer, 256, src);
+
+        if (status == NULL) {
+            break;
+        }
+
+        TOKENS tokens = tokenizer(buffer, ',');
+
+        int tokens_len = tokens.len;
+        TOKEN_H tokens_data = tokens.data;
+
+        int col_cap = ((tokens_len+1)/2);
+        str2d[i] = malloc(col_cap*sizeof(char*));
+
+        j = 0;
+        int k = 0;
+
+        while(k < tokens_len) {
+            if (tokens_data[k].type == STR) {
+                str2d[i][j] = tokens_data[k].value;
+                j++;
+                k++;
+            } else if (tokens_data[k].type == QUOTE_STR) {
+                str2d[i][j] = tokens_data[k].value;
+                j++;
+                k++;
+            } else {
+                k++;
+                continue;
+            }
+        }
+        
+        i++;
     }
+
+    result.rows = i;
+    result.columns = j;
+    result.str2d = str2d;
+
+    return result;
 }
 
 
