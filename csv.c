@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include "include/csv.h"
 #include "include/csv_internal.h"
@@ -67,17 +66,12 @@ ParserResult parser(TOKENS tokens)
 
 
 CSV csv_reader(FILE *src) {
-    CSV result;
+    CSV result = {0};
     int row_cap = 10;
     CHAR3D_H str2d = malloc(row_cap*sizeof(CHAR2D_H));    
     
     if (!str2d) {
-        str2d = NULL;
-        CSV empty;
-        empty.rows = 0;
-        empty.columns = 0;
-        empty.str2d = str2d;
-        return empty;
+        return result;
     }
 
     int i = 0;
@@ -97,11 +91,7 @@ CSV csv_reader(FILE *src) {
 
                 free(str2d);
                 str2d = NULL;
-                CSV empty;
-                empty.rows = 0;
-                empty.columns = 0;
-                empty.str2d = str2d;
-                return empty;
+                return result;
             }
 
             str2d = new_str2d;
