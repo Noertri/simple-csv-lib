@@ -6,7 +6,7 @@
 
 int main() {
     char buffer[256];
-    FILE *fp = fopen("samples/people.csv",\
+    FILE *fp = fopen("samples/meteorite_landings.csv",\
             "r");
 
     if (fp == NULL) {
@@ -16,7 +16,7 @@ int main() {
     
     CSV_OPTS options = {0};
 
-    CSV reader = csv_reader(fp, 256, options);
+    CSV reader = csv_reader(fp, 4096, options);
 
     for (int i = 0; i < reader.rows; i++) {
         for (int j = 0; j < reader.columns; j++) {
