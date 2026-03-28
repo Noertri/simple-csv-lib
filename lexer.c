@@ -6,7 +6,7 @@
 #include "include/csv_internal.h"
 
 
-Token make_str_tok(char *buffer, int *position, const char delim)
+Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
 {
     Token token;
     token.type = STR;
@@ -21,7 +21,7 @@ Token make_str_tok(char *buffer, int *position, const char delim)
         return token;
     }
 
-    while (buffer[i] != delim && buffer[i] != '\0')
+    while (buffer[i] != options.delimiter && buffer[i] != '\0')
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -54,14 +54,13 @@ Token make_str_tok(char *buffer, int *position, const char delim)
     return token;
 }
 
-Token make_quote_str_tok(char *buffer, int *position)
+Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
 {
     Token token;
     token.type = QUOTE_STR;
     int i = *position;
     i += 1;
     int k = 0;
-    char esc_char = '\\';
     size_t capacity = 256;
     char *output = malloc(capacity*sizeof(char));
     
@@ -70,7 +69,7 @@ Token make_quote_str_tok(char *buffer, int *position)
         return token;
     }
 
-    while (buffer[i] != '"' && buffer[i] != '\0')
+    while (buffer[i] != options.quote && buffer[i] != '\0')
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -85,7 +84,7 @@ Token make_quote_str_tok(char *buffer, int *position)
             output = temp;
         }
 
-        if (buffer[i] == esc_char) {
+        if (buffer[i] == options.escape) {
             i++;
 
             if (buffer[i] == 'n') {
@@ -116,7 +115,7 @@ Token make_quote_str_tok(char *buffer, int *position)
         }
     }
     
-    if (buffer[i] == '"') {
+    if (buffer[i] == options.quote) {
         i++;
     }
     output[k] = '\0';
@@ -133,7 +132,7 @@ void append(TOKEN_H array, int index, Token value) {
 }
 
 
-TOKENS tokenizer(char *buffer, char delim)
+TOKENS tokenizer(char *buffer, const CSV_OPTS options)
 {
     int capacity = 10;
     TOKEN_H tokens = malloc(capacity*sizeof(Token));
@@ -172,19 +171,19 @@ TOKENS tokenizer(char *buffer, char delim)
             buffer[pos_char] == '\r') {
             pos_char++;
             continue;
-        } else if (buffer[pos_char] == delim) {
+        } else if (buffer[pos_char] == options.delimiter) {
             Token delim_tok;
             delim_tok.type = DELIM;
             delim_tok.value = NULL;
             append(tokens, i, delim_tok);
             pos_char++;
             i++;
-        } else if (buffer[pos_char] == '"') {
-            Token quote_str_tok = make_quote_str_tok(buffer, &pos_char);
+        } else if (buffer[pos_char] == options.quote) {
+            Token quote_str_tok = make_quote_str_tok(buffer, &pos_char, options);
             append(tokens, i, quote_str_tok);
             i++;
         } else {
-            Token str_tok = make_str_tok(buffer, &pos_char, delim);
+            Token str_tok = make_str_tok(buffer, &pos_char, options);
             append(tokens, i, str_tok);
             i++;
         }

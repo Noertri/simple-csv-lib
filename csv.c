@@ -81,7 +81,25 @@ static void cleanup_on_error(CHAR3D_H arr, int process_row, int process_col)
 }
 
 
-CSV csv_reader(FILE *src, CSV_OPTS options) {
+CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
+    /*
+        FILE *src               : Pointer to filestream
+        size_t buffer_size      : Size of the buffer
+        CSV_OPTS csv_options    : CSV related options (delimiter, escape character, quote character, etc)
+    */
+
+    if (!csv_options.delimiter) {
+        csv_options.delimiter = ',';
+    } 
+
+    if (!csv_options.escape) {
+        csv_options.escape = '\\';
+    }
+
+    if (!csv_options.quote) {
+        csv_options.quote = '"';
+    }
+
     CSV result = {0};
     int row_cap = 10;
     CHAR3D_H records = malloc(row_cap*sizeof(CHAR2D_H));    
@@ -94,7 +112,7 @@ CSV csv_reader(FILE *src, CSV_OPTS options) {
     int j;
     while(1) {
         if (i >= row_cap) {
-            row_cap *= 2;
+            row_cap *= 10;
             CHAR3D_H new_records = realloc(records, row_cap*sizeof(CHAR2D_H));
 
             if (!new_records) {
@@ -105,14 +123,14 @@ CSV csv_reader(FILE *src, CSV_OPTS options) {
             records = new_records;
         }
 
-        char buffer[256];
+        char buffer[buffer_size];
         char *status = fgets(buffer, 256, src);
 
         if (status == NULL) {
             break;
         }
 
-        TOKENS tokens = tokenizer(buffer, ',');
+        TOKENS tokens = tokenizer(buffer, csv_options);
         CSVRow row = parser(tokens);
         
         int col_cap = row.len;
@@ -144,4 +162,17 @@ CSV csv_reader(FILE *src, CSV_OPTS options) {
     return result;
 }
 
+
+int csv_destroy(CSV csv) {
+    for (int i = 0; i < csv.rows; i++) {
+        for (int j = 0; j < csv.columns; j++) {
+            free(csv.records[i][j]);
+            csv.records[i][j] = NULL;
+        }
+    }
+
+    free(csv.records);
+    csv.records = NULL;
+    return 0;
+}
 
