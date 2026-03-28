@@ -16,13 +16,13 @@ typedef char** CHAR2D_H ;
 
 typedef char*** CHAR3D_H;
 
-typedef struct csv_result {
+typedef struct __csv {
     int rows;
     int columns;
-    CHAR3D_H str2d;
+    CHAR3D_H records;
 } CSV;
 
-CSV csv_reader(FILE *csv_fp);
+CSV csv_reader(FILE *csv_fp, CSV_OPTS options);
 
 int csv_destroy(CSV csv);
 

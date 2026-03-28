@@ -25,21 +25,23 @@ int destroy_tokens(TOKENS tokens)
 }
 
 
-typedef struct __parser_result {
+typedef struct __csv_row {
     int len;
     CHAR2D_H values;
-} ParserResult;
+} CSVRow;
 
 
-ParserResult parser(TOKENS tokens)
+CSVRow parser(TOKENS tokens)
 {
     int capacity = ((tokens.len+1)/2);
     TOKEN_H tokens_data = tokens.data;
     CHAR2D_H token_values = malloc(capacity*sizeof(char*));
-    ParserResult result;
+    CSVRow result;
 
-    int i = 0;
-    int j = 0;
+    int i;
+    int j;
+
+    i = j = 0;
 
     while (i < tokens.len) {
         if (tokens_data[i].type == STR) {
@@ -65,12 +67,26 @@ ParserResult parser(TOKENS tokens)
 }
 
 
-CSV csv_reader(FILE *src) {
+static void cleanup_on_error(CHAR3D_H arr, int process_row, int process_col)
+{
+    for (int i = 0; i < process_row; i++) {
+        for (int j = 0; j < process_col; j++) {
+            free(arr[i][j]);
+            arr[i][j] = NULL;
+        }
+    }
+
+    free(arr);
+    arr = NULL;
+}
+
+
+CSV csv_reader(FILE *src, CSV_OPTS options) {
     CSV result = {0};
     int row_cap = 10;
-    CHAR3D_H str2d = malloc(row_cap*sizeof(CHAR2D_H));    
+    CHAR3D_H records = malloc(row_cap*sizeof(CHAR2D_H));    
     
-    if (!str2d) {
+    if (!records) {
         return result;
     }
 
@@ -79,22 +95,14 @@ CSV csv_reader(FILE *src) {
     while(1) {
         if (i >= row_cap) {
             row_cap *= 2;
-            CHAR3D_H new_str2d = realloc(str2d, row_cap*sizeof(CHAR2D_H));
+            CHAR3D_H new_records = realloc(records, row_cap*sizeof(CHAR2D_H));
 
-            if (!new_str2d) {
-                for (int h = 0; h < i; h++) {
-                    for (int g = 0; g < j; g++) {
-                        free(str2d[h][g]);
-                        str2d[h][g] = NULL;
-                    }
-                }
-
-                free(str2d);
-                str2d = NULL;
+            if (!new_records) {
+                cleanup_on_error(records, i, j);
                 return result;
             }
 
-            str2d = new_str2d;
+            records = new_records;
         }
 
         char buffer[256];
@@ -105,28 +113,33 @@ CSV csv_reader(FILE *src) {
         }
 
         TOKENS tokens = tokenizer(buffer, ',');
-        ParserResult parser_results = parser(tokens);
+        CSVRow row = parser(tokens);
         
-        int col_cap = parser_results.len;
-        str2d[i] = malloc(col_cap*sizeof(char*));
+        int col_cap = row.len;
+        records[i] = malloc(col_cap*sizeof(char*));
+        
+        if (!records[i]) {
+            cleanup_on_error(records, i, j);
+            return result;
+        }
 
         j = 0;
 
-        for(int k = 0; k < parser_results.len; k++) {
-            str2d[i][j] = parser_results.values[k];
-            parser_results.values[k] = NULL;
+        for(int k = 0; k < row.len; k++) {
+            records[i][j] = row.values[k];
+            row.values[k] = NULL;
             j++;
         }
 
         i++;
         
-        free(parser_results.values);
-        parser_results.values = NULL;
+        free(row.values);
+        row.values = NULL;
     }
 
     result.rows = i;
     result.columns = j;
-    result.str2d = str2d;
+    result.records = records;
 
     return result;
 }

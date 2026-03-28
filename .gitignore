@@ -82,4 +82,5 @@ c/bin/
 *.csv
 !people-100.csv
 !products-100.csv
+!samples/*.csv
 # End of https://www.toptal.com/developers/gitignore/api/c,c++

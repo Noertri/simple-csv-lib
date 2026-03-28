@@ -9,17 +9,18 @@ int main() {
             "r");
 
     if (fp == NULL) {
-        perror("Fail when open file!!!");
+        perror("Failed when open file!!!");
         exit(-1);
     }
     
-    CSV_OPTS options;
+    CSV_OPTS options = {0};
 
-    CSV reader = csv_reader(fp);
+    CSV reader = csv_reader(fp, options);
 
     for (int i = 0; i < reader.rows; i++) {
-        printf("%s\t", reader.str2d[i][0]);
-        printf("%s\t", reader.str2d[i][2]);
+        for (int j = 0; j < reader.columns; j++) {
+            printf("%s ", reader.records[i][j]);
+        }
         printf("\n");
     }
 
