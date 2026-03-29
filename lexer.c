@@ -21,29 +21,23 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
         return token;
     }
 
-    while (buffer[i] != options.delimiter && buffer[i] != '\0')
+    while (buffer[i] != options.delimiter &&\
+            buffer[i] != '\n')
     {
         if (k >= capacity-1) {
             capacity *= 2;
-            char *temp = realloc(output, capacity*sizeof(char));
+            output = realloc(output, capacity*sizeof(char));
 
-            if (!temp) {
+            if (!output) {
                 free(output);
                 token.value = NULL;
                 return token;
             }
-
-            output = temp;
         }
 
-        if (buffer[i] == '\r' || buffer[i] == '\n') {
-            i++;
-            continue;
-        } else {
-            output[k] = buffer[i];
-            i++;
-            k++;
-        }
+        output[k] = buffer[i];
+        i++;
+        k++;
     } 
     
     output[k] = '\0';
@@ -58,7 +52,7 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
 Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
 {
     Token token;
-    token.type = QUOTE_FIELD;
+    token.type = FIELD;
     int i = *position;
     i += 1;
     int k = 0;
@@ -70,19 +64,17 @@ Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
         return token;
     }
 
-    while (buffer[i] != options.quote && buffer[i] != '\0')
+    while (buffer[i] != options.quote && buffer[i] != '\n')
     {
         if (k >= capacity-1) {
             capacity *= 2;
-            char *temp = realloc(output, capacity*sizeof(char));
+            output = realloc(output, capacity*sizeof(char));
 
-            if (!temp) {
+            if (!output) {
                 free(output);
                 token.value = NULL;
                 return token;
             }
-
-            output = temp;
         }
 
         if (buffer[i] == options.escape) {
@@ -119,6 +111,7 @@ Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
     if (buffer[i] == options.quote) {
         i++;
     }
+
     output[k] = '\0';
     *position = i;
 
@@ -150,10 +143,10 @@ TOKENS tokenizer(char *buffer, const CSV_OPTS options)
     {
         if (i >= capacity) {
             capacity *= 2;
-            TOKEN_H new_tokens = realloc(tokens,\
+            tokens = realloc(tokens,\
                     capacity*sizeof(Token));
             
-            if (!new_tokens) {
+            if (!tokens) {
                 for (int j = 0; j < i; j++) {
                     if (tokens[j].value != NULL) {
                         free(tokens[j].value);
@@ -164,14 +157,14 @@ TOKENS tokenizer(char *buffer, const CSV_OPTS options)
                 TOKENS empty = {0, NULL};
                 return empty;
             }
-
-            tokens = new_tokens;
         }
 
-        if (buffer[pos_char] == '\n' ||\
-            buffer[pos_char] == '\r') {
+        if (buffer[pos_char] == '\n') {
             Token eol_tok = {EOL, NULL};
             append(tokens, i, eol_tok);
+            pos_char++;
+            i++;
+        } else if (buffer[pos_char] == '\r') {
             pos_char++;
             continue;
         } else if (buffer[pos_char] == options.delimiter) {

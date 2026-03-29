@@ -43,31 +43,36 @@ CSVRow parser(TOKENS tokens, char *null_value)
 
     i = j = 0;
 
-    while (i < capacity) {
-        if (tokens_data[i].type == DELIM) {
-            if (i == 0) {
+    if (tokens_data[0].type == DELIM) {
+        token_values[j] = NULL;
+        j++;
+    }
+    
+    while (i < tokens.len) {
+        if (tokens_data[i].type == FIELD\
+                || tokens_data[i].type == QUOTE_FIELD) {
+            token_values[j] = tokens_data[i].value;
+            tokens_data[i].value = NULL;
+            i++;
+            j++;
+        } else if (tokens_data[i].type == DELIM) {
+            if (tokens_data[i+1].type == DELIM) {
                 token_values[j] = NULL;
                 i++;
                 j++;
-            } else if (tokens_data[i-1].type == DELIM) {
+            } else if (tokens_data[i+1].type == EOL) {
                 token_values[j] = NULL;
                 i++;
                 j++;
             } else {
                 i++;
             }
-        } else if (tokens_data[i].type == FIELD\
-                || tokens_data[i].type == QUOTE_FIELD) {
-            token_values[j] = tokens_data[i].value;
-            tokens_data[i].value = NULL;
-            i++;
-            j++;
         } else {
             break;
         }
     }
 
-    //destroy_tokens(tokens);
+    destroy_tokens(tokens);
 
     result.len = j;
     result.values = token_values;
@@ -90,7 +95,7 @@ static void cleanup_on_error(RECORDS_H arr, int process_row)
 }
 
 
-CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
+CSV csv_reader(FILE *src, int row_cap, size_t buffer_size, CSV_OPTS csv_options) {
     /*
         FILE *src               : Pointer to filestream
         size_t buffer_size      : Size of the buffer
@@ -110,7 +115,7 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
     }
 
     CSV result = {0};
-    int row_cap = 10;
+    //int row_cap = 100;
     RECORDS_H records = malloc(row_cap*sizeof(CSVRow)); 
     
     if (!records) {
@@ -119,19 +124,17 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
 
     int i = 0;
     int j;
-    while(i < 300) {
-        if (i >= row_cap) {
+    while(i < row_cap) {
+        /*if (i >= row_cap) {
             row_cap *= 10;
-            RECORDS_H new_records = realloc(records, row_cap*sizeof(CHAR2D_H));
+            records = realloc(records, row_cap*sizeof(CHAR2D_H));
 
-            if (!new_records) {
+            if (!records) {
                 perror("Failed to reallocate memory!!!");
                 cleanup_on_error(records, i);
                 return result;
             }
-
-            records = new_records;
-        }
+        }*/
 
         char buffer[buffer_size];
         char *status = fgets(buffer, buffer_size, src);

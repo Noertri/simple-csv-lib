@@ -17,13 +17,13 @@ int main() {
     CSV_OPTS options = {0};
     options.null_value = "NONE";
 
-    CSV reader = csv_reader(fp, 4096, options);
+    CSV reader = csv_reader(fp, 50000, 4096, options);
 
     for (int i = 0; i < reader.rows; i++) {
-        printf("%d ", i+1);
+        //printf("%d ", i+1);
         CSVRow row = reader.records[i];
         for (int j = 0; j < row.len; j++) {
-            printf("%s ", row.values[j]);
+            printf("%s|", row.values[j]);
         }
 
         printf("\n");
