@@ -22,7 +22,7 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
     }
 
     while (buffer[i] != options.delimiter &&\
-            buffer[i] != '\n')
+            (buffer[i] != '\n'))
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -34,8 +34,11 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
                 return token;
             }
         }
+        
+        if (buffer[i] != '\r') {
+            output[k] = buffer[i];
+        }
 
-        output[k] = buffer[i];
         i++;
         k++;
     } 
@@ -64,7 +67,7 @@ Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
         return token;
     }
 
-    while (buffer[i] != options.quote && buffer[i] != '\n')
+    while (buffer[i] != options.quote && (buffer[i] != '\n'))
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -102,7 +105,11 @@ Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
             
             i++;
         } else {
-            output[k] = buffer[i];
+            //output[k] = buffer[i];
+            if (buffer[i] != '\r') {
+                output[k] = buffer[i];
+            }
+
             i++;
             k++;
         }

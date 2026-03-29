@@ -6,7 +6,7 @@
 
 int main() {
     char buffer[256];
-    FILE *fp = fopen("samples/meteorite_landings.csv",\
+    FILE *fp = fopen("samples/people.csv",\
             "r");
 
     if (fp == NULL) {
@@ -17,13 +17,13 @@ int main() {
     CSV_OPTS options = {0};
     options.null_value = "NONE";
 
-    CSV reader = csv_reader(fp, 50000, 4096, options);
+    CSV reader = csv_reader(fp, 200, 4096, options);
 
     for (int i = 0; i < reader.rows; i++) {
         //printf("%d ", i+1);
         CSVRow row = reader.records[i];
         for (int j = 0; j < row.len; j++) {
-            printf("%s|", row.values[j]);
+            printf("%-25s ", row.values[j]);
         }
 
         printf("\n");
