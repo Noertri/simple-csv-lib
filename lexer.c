@@ -9,7 +9,7 @@
 Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
 {
     Token token;
-    token.type = STR;
+    token.type = FIELD;
     int i = *position;
     int k = 0;
     size_t capacity = 256;
@@ -54,10 +54,11 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
     return token;
 }
 
+
 Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
 {
     Token token;
-    token.type = QUOTE_STR;
+    token.type = QUOTE_FIELD;
     int i = *position;
     i += 1;
     int k = 0;
@@ -169,12 +170,12 @@ TOKENS tokenizer(char *buffer, const CSV_OPTS options)
 
         if (buffer[pos_char] == '\n' ||\
             buffer[pos_char] == '\r') {
+            Token eol_tok = {EOL, NULL};
+            append(tokens, i, eol_tok);
             pos_char++;
             continue;
         } else if (buffer[pos_char] == options.delimiter) {
-            Token delim_tok;
-            delim_tok.type = DELIM;
-            delim_tok.value = NULL;
+            Token delim_tok = {DELIM, NULL};
             append(tokens, i, delim_tok);
             pos_char++;
             i++;

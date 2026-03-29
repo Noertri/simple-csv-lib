@@ -12,6 +12,7 @@ typedef struct __options {
     char delimiter;
     char quote;
     char escape;
+    char *null_value;
 } CSV_OPTS;
 #endif
 
@@ -19,10 +20,16 @@ typedef char** CHAR2D_H ;
 
 typedef char*** CHAR3D_H;
 
+typedef struct __csv_row {
+    int len;
+    CHAR2D_H values;
+} CSVRow;
+
+typedef CSVRow* RECORDS_H;
+
 typedef struct __csv {
     int rows;
-    int columns;
-    CHAR3D_H records;
+    RECORDS_H records;
 } CSV;
 
 CSV csv_reader(FILE *src, size_t buffer_size,\

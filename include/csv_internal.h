@@ -1,7 +1,8 @@
 typedef enum __token_type {
     DELIM = 0,
-    STR,
-    QUOTE_STR
+    FIELD,
+    QUOTE_FIELD,
+    EOL
 } TokenType;
 
 typedef struct __token {
@@ -22,6 +23,7 @@ typedef struct __options {
     char delimiter;
     char quote;
     char escape;
+    char *null_value;
 } CSV_OPTS;
 #endif
 

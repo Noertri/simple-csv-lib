@@ -15,17 +15,21 @@ int main() {
     }
     
     CSV_OPTS options = {0};
+    options.null_value = "NONE";
 
     CSV reader = csv_reader(fp, 4096, options);
 
     for (int i = 0; i < reader.rows; i++) {
-        for (int j = 0; j < reader.columns; j++) {
-            printf("%s ", reader.records[i][j]);
+        printf("%d ", i+1);
+        CSVRow row = reader.records[i];
+        for (int j = 0; j < row.len; j++) {
+            printf("%s ", row.values[j]);
         }
+
         printf("\n");
     }
     
-    csv_destroy(reader);
+    //csv_destroy(reader);
     fclose(fp);
     return 0;
 }

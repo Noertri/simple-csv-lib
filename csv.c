@@ -25,41 +25,49 @@ int destroy_tokens(TOKENS tokens)
 }
 
 
-typedef struct __csv_row {
-    int len;
-    CHAR2D_H values;
-} CSVRow;
-
-
-CSVRow parser(TOKENS tokens)
+CSVRow parser(TOKENS tokens, char *null_value)
 {
-    int capacity = ((tokens.len+1)/2);
+    CSVRow result = {0};
+    int capacity = tokens.len;
     TOKEN_H tokens_data = tokens.data;
     CHAR2D_H token_values = malloc(capacity*sizeof(char*));
-    CSVRow result;
+
+    if (!token_values) {
+        perror("Failed to allocate memory!!!");
+        token_values = NULL;
+        return result;
+    }
 
     int i;
     int j;
 
     i = j = 0;
 
-    while (i < tokens.len) {
-        if (tokens_data[i].type == STR) {
-            token_values[j] = tokens_data[i].value;
-            tokens_data[i].value = NULL;
-            i++;
-            j++;
-        } else if (tokens_data[i].type == QUOTE_STR) {
+    while (i < capacity) {
+        if (tokens_data[i].type == DELIM) {
+            if (i == 0) {
+                token_values[j] = NULL;
+                i++;
+                j++;
+            } else if (tokens_data[i-1].type == DELIM) {
+                token_values[j] = NULL;
+                i++;
+                j++;
+            } else {
+                i++;
+            }
+        } else if (tokens_data[i].type == FIELD\
+                || tokens_data[i].type == QUOTE_FIELD) {
             token_values[j] = tokens_data[i].value;
             tokens_data[i].value = NULL;
             i++;
             j++;
         } else {
-            i++;
+            break;
         }
     }
 
-    destroy_tokens(tokens);
+    //destroy_tokens(tokens);
 
     result.len = j;
     result.values = token_values;
@@ -67,12 +75,13 @@ CSVRow parser(TOKENS tokens)
 }
 
 
-static void cleanup_on_error(CHAR3D_H arr, int process_row, int process_col)
+static void cleanup_on_error(RECORDS_H arr, int process_row)
 {
     for (int i = 0; i < process_row; i++) {
-        for (int j = 0; j < process_col; j++) {
-            free(arr[i][j]);
-            arr[i][j] = NULL;
+        CSVRow row = arr[i];
+        for (int j = 0; j < row.len; j++) {
+            free(row.values[j]);
+            row.values[j] = NULL;
         }
     }
 
@@ -102,7 +111,7 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
 
     CSV result = {0};
     int row_cap = 10;
-    CHAR3D_H records = malloc(row_cap*sizeof(CHAR2D_H));    
+    RECORDS_H records = malloc(row_cap*sizeof(CSVRow)); 
     
     if (!records) {
         return result;
@@ -110,13 +119,14 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
 
     int i = 0;
     int j;
-    while(1) {
+    while(i < 300) {
         if (i >= row_cap) {
             row_cap *= 10;
-            CHAR3D_H new_records = realloc(records, row_cap*sizeof(CHAR2D_H));
+            RECORDS_H new_records = realloc(records, row_cap*sizeof(CHAR2D_H));
 
             if (!new_records) {
-                cleanup_on_error(records, i, j);
+                perror("Failed to reallocate memory!!!");
+                cleanup_on_error(records, i);
                 return result;
             }
 
@@ -124,39 +134,20 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
         }
 
         char buffer[buffer_size];
-        char *status = fgets(buffer, 256, src);
+        char *status = fgets(buffer, buffer_size, src);
 
         if (status == NULL) {
             break;
         }
 
         TOKENS tokens = tokenizer(buffer, csv_options);
-        CSVRow row = parser(tokens);
-        
-        int col_cap = row.len;
-        records[i] = malloc(col_cap*sizeof(char*));
-        
-        if (!records[i]) {
-            cleanup_on_error(records, i, j);
-            return result;
-        }
-
-        j = 0;
-
-        for(int k = 0; k < row.len; k++) {
-            records[i][j] = row.values[k];
-            row.values[k] = NULL;
-            j++;
-        }
-
+        CSVRow row = parser(tokens, csv_options.null_value);
+        records[i] = row;   
         i++;
-        
-        free(row.values);
-        row.values = NULL;
+        //destroy_tokens(tokens);
     }
 
     result.rows = i;
-    result.columns = j;
     result.records = records;
 
     return result;
@@ -165,9 +156,10 @@ CSV csv_reader(FILE *src, size_t buffer_size, CSV_OPTS csv_options) {
 
 int csv_destroy(CSV csv) {
     for (int i = 0; i < csv.rows; i++) {
-        for (int j = 0; j < csv.columns; j++) {
-            free(csv.records[i][j]);
-            csv.records[i][j] = NULL;
+        CSVRow row = csv.records[i];
+        for (int j = 0; j < row.len; j++) {
+            free(row.values[j]);
+            row.values[j] = NULL;
         }
     }
 
