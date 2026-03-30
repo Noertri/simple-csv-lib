@@ -13,7 +13,8 @@ typedef struct __options {
     char quote;
     char escape;
     char *null_value;
-} CSV_OPTS;
+    size_t buffer_size;
+} CSVOpts;
 #endif
 
 typedef char** CHAR2D_H ;
@@ -32,8 +33,8 @@ typedef struct __csv {
     RECORDS_H records;
 } CSV;
 
-CSV csv_reader(FILE *src, int row_cap, size_t buffer_size,\
-        const CSV_OPTS csv_options);
+CSV csv_reader(FILE *src, int row_cap,\
+        const CSVOpts csv_options);
 
 int csv_destroy(CSV csv);
 

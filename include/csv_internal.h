@@ -23,10 +23,10 @@ typedef struct __options {
     char quote;
     char escape;
     char *null_value;
-} CSV_OPTS;
+} CSVOpts;
 #endif
 
 
-TOKENS tokenizer(char *buffer, const CSV_OPTS options);
+TOKENS tokenizer(char *buffer, const CSVOpts options);
 
 

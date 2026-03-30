@@ -94,11 +94,11 @@ static void cleanup_on_error(RECORDS_H arr, int process_row)
 }
 
 
-CSV csv_reader(FILE *src, int row_cap, size_t buffer_size, CSV_OPTS csv_options) {
+CSV csv_reader(FILE *src, int row_cap, CSVOpts csv_options) {
     /*
         FILE *src               : Pointer to filestream
         size_t buffer_size      : Size of the buffer
-        CSV_OPTS csv_options    : CSV related options (delimiter, escape character, quote character, etc)
+        CSVOpts csv_options    : CSV related options (delimiter, escape character, quote character, etc)
     */
 
     if (!csv_options.delimiter) {
@@ -111,6 +111,10 @@ CSV csv_reader(FILE *src, int row_cap, size_t buffer_size, CSV_OPTS csv_options)
 
     if (!csv_options.quote) {
         csv_options.quote = '"';
+    }
+
+    if (!csv_options.buffer_size) {
+        csv_options.buffer_size = 256;
     }
 
     CSV result = {0};
@@ -135,8 +139,8 @@ CSV csv_reader(FILE *src, int row_cap, size_t buffer_size, CSV_OPTS csv_options)
             }
         }*/
 
-        char buffer[buffer_size];
-        char *status = fgets(buffer, buffer_size, src);
+        char buffer[csv_options.buffer_size];
+        char *status = fgets(buffer, csv_options.buffer_size, src);
 
         if (status == NULL) {
             break;

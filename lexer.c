@@ -6,7 +6,7 @@
 #include "include/csv_internal.h"
 
 
-Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
+Token make_str_tok(char *buffer, int *position, const CSVOpts options)
 {
     Token token;
     token.type = FIELD;
@@ -52,7 +52,7 @@ Token make_str_tok(char *buffer, int *position, const CSV_OPTS options)
 }
 
 
-Token make_quote_str_tok(char *buffer, int *position, const CSV_OPTS options)
+Token make_quote_str_tok(char *buffer, int *position, const CSVOpts options)
 {
     Token token;
     token.type = FIELD;
@@ -133,7 +133,7 @@ void append(TOKEN_H array, int index, Token value) {
 }
 
 
-TOKENS tokenizer(char *buffer, const CSV_OPTS options)
+TOKENS tokenizer(char *buffer, const CSVOpts options)
 {
     int capacity = 10;
     TOKEN_H tokens = malloc(capacity*sizeof(Token));
