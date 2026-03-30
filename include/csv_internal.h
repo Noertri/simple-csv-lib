@@ -1,7 +1,6 @@
 typedef enum __token_type {
     DELIM = 0,
     FIELD,
-    QUOTE_FIELD,
     EOL
 } TokenType;
 

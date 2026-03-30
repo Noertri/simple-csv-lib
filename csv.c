@@ -49,8 +49,7 @@ CSVRow parser(TOKENS tokens, char *null_value)
     }
     
     while (i < tokens.len) {
-        if (tokens_data[i].type == FIELD\
-                || tokens_data[i].type == QUOTE_FIELD) {
+        if (tokens_data[i].type == FIELD) {
             token_values[j] = tokens_data[i].value;
             tokens_data[i].value = NULL;
             i++;

@@ -23,7 +23,7 @@ int main() {
         //printf("%d ", i+1);
         CSVRow row = reader.records[i];
         for (int j = 0; j < row.len; j++) {
-            printf("%-25s ", row.values[j]);
+            printf("%s ", row.values[j]);
         }
 
         printf("\n");
