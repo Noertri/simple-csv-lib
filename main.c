@@ -6,7 +6,7 @@
 
 int main() {
     char buffer[256];
-    FILE *fp = fopen("samples/meteorite_landings.csv",\
+    FILE *fp = fopen("samples/people.csv",\
             "r");
 
     if (fp == NULL) {

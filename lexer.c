@@ -21,8 +21,7 @@ Token make_str_tok(char *buffer, int *position, const CSVOpts options)
         return token;
     }
 
-    while (buffer[i] != options.delimiter &&\
-            (buffer[i] != '\n'))
+    while (!(buffer[i] == options.delimiter || buffer[i] == '\n'))
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -67,7 +66,7 @@ Token make_quote_str_tok(char *buffer, int *position, const CSVOpts options)
         return token;
     }
 
-    while (buffer[i] != options.quote && (buffer[i] != '\n'))
+    while (!(buffer[i] == options.quote))
     {
         if (k >= capacity-1) {
             capacity *= 2;
@@ -135,12 +134,12 @@ void append(TOKEN_H array, int index, Token value) {
 
 TOKENS tokenizer(char *buffer, const CSVOpts options)
 {
+    TOKENS arr_tokens = {0};
     int capacity = 10;
     TOKEN_H tokens = malloc(capacity*sizeof(Token));
     
     if (!tokens) {
-        TOKENS empty = {0, NULL};
-        return empty;
+        return arr_tokens;
     }
 
     int i = 0;
@@ -161,8 +160,7 @@ TOKENS tokenizer(char *buffer, const CSVOpts options)
                 }
 
                 free(tokens);
-                TOKENS empty = {0, NULL};
-                return empty;
+                return arr_tokens;
             }
         }
 
@@ -190,7 +188,6 @@ TOKENS tokenizer(char *buffer, const CSVOpts options)
         }
     }
 
-    TOKENS arr_tokens;
     arr_tokens.len = i;
     arr_tokens.data = tokens;
     return arr_tokens;
