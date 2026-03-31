@@ -4,9 +4,9 @@
 #include "include/csv.h"
 
 
-int main() {
+int main(int argc, char **argv) {
     char buffer[256];
-    FILE *fp = fopen("samples/people.csv",\
+    FILE *fp = fopen(argv[1],\
             "r");
 
     if (fp == NULL) {
