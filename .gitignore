@@ -84,6 +84,7 @@ c/bin/
 !products-100.csv
 !samples/*.csv
 log*
+*.json
 
 # clangd cache folder
 .cache/
