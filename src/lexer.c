@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include "include/csv_internal.h"
+#include "csv_internal.h"
 
 
 Token make_str_tok(char *buffer, int *position, const CSVOpts options)

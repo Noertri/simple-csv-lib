@@ -1,6 +1,11 @@
-run: build
-	./main "samples/people.csv" | less
+SRC=src
+DEBUG=debug
+INCLUDE=include
+TESTS=tests
 
-build: main.c csv.c lexer.c
-	${CC} -g -Iinclude main.c csv.c lexer.c -o main
+run: debug
+	./${DEBUG}/test.out "samples/people.csv" | less
+
+debug: ${TESTS}/test.c ${SRC}/csv.c ${SRC}/lexer.c
+	${CC} -g -Iinclude ${TESTS}/test.c ${SRC}/csv.c ${SRC}/lexer.c -o ${DEBUG}/test.out
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include "include/csv.h"
+#include "../include/csv.h"
 
 
 int main(int argc, char **argv) {

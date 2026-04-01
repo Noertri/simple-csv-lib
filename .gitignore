@@ -84,4 +84,11 @@ c/bin/
 !products-100.csv
 !samples/*.csv
 log*
+
+# clangd cache folder
+.cache/
+
+# debug folder
+debug/*
+
 # End of https://www.toptal.com/developers/gitignore/api/c,c++

@@ -1,0 +1,41 @@
+[
+  {
+    "file": "tests/test.c",
+    "arguments": [
+      "/data/data/com.termux/files/usr/bin/clang",
+      "-g",
+      "-Iinclude",
+      "tests/test.c",
+      "-o",
+      "debug/test.out"
+    ],
+    "directory": "/data/data/com.termux/files/home/simple-csv-lib",
+    "output": "debug/test.out"
+  },
+  {
+    "file": "src/csv.c",
+    "arguments": [
+      "/data/data/com.termux/files/usr/bin/clang",
+      "-g",
+      "-Iinclude",
+      "src/csv.c",
+      "-o",
+      "debug/test.out"
+    ],
+    "directory": "/data/data/com.termux/files/home/simple-csv-lib",
+    "output": "debug/test.out"
+  },
+  {
+    "file": "src/lexer.c",
+    "arguments": [
+      "/data/data/com.termux/files/usr/bin/clang",
+      "-g",
+      "-Iinclude",
+      "src/lexer.c",
+      "-o",
+      "debug/test.out"
+    ],
+    "directory": "/data/data/com.termux/files/home/simple-csv-lib",
+    "output": "debug/test.out"
+  }
+]
