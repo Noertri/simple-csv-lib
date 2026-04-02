@@ -33,7 +33,7 @@ typedef struct __csv {
     RECORDS_H records;
 } CSV;
 
-CSV csv_reader(FILE *src, int row_cap,\
+CSV csv_reader(FILE *src, int max_row,\
         const CSVOpts csv_options);
 
 int csv_destroy(CSV csv);

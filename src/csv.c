@@ -94,11 +94,11 @@ static void cleanup_on_error(RECORDS_H arr, int process_row)
 }
 
 
-CSV csv_reader(FILE *src, int row_cap, CSVOpts csv_options) {
+CSV csv_reader(FILE *src, int max_row, CSVOpts csv_options) {
     /*
         FILE *src               : Pointer to filestream
-        size_t buffer_size      : Size of the buffer
-        CSVOpts csv_options    : CSV related options (delimiter, escape character, quote character, etc)
+        int max_row             : Maximum rows of file to be parsed
+        CSVOpts csv_options     : CSV related options (delimiter, escape character, quote character, etc)
     */
 
     if (!csv_options.delimiter) {
@@ -119,7 +119,7 @@ CSV csv_reader(FILE *src, int row_cap, CSVOpts csv_options) {
 
     CSV result = {0};
     //int row_cap = 100;
-    RECORDS_H records = malloc(row_cap*sizeof(CSVRow)); 
+    RECORDS_H records = malloc(max_row*sizeof(CSVRow)); 
     
     if (!records) {
         return result;
@@ -127,7 +127,7 @@ CSV csv_reader(FILE *src, int row_cap, CSVOpts csv_options) {
 
     int i = 0;
     int j;
-    while(i < row_cap) {
+    while(i < max_row) {
         /*if (i >= row_cap) {
             row_cap *= 10;
             records = realloc(records, row_cap*sizeof(CHAR2D_H));
